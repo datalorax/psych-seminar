@@ -146,11 +146,11 @@ p <- ggplot(mean_temps, aes(x = month, y = location, fill = mean)) +
                        name = "temperature (°F)") + 
   scale_y_discrete(name = NULL) +
   coord_fixed(expand = FALSE) +
-  theme_dviz_open() +
+  theme_dviz_open(25) +
   theme(axis.line = element_blank(),
         axis.ticks = element_blank(),
         #axis.text.y = element_text(size = 14),
-        legend.title = element_text(size = 12)
+        legend.title = element_text(size = 18)
         )
 
 # fix legend (make it centered)

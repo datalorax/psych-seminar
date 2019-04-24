@@ -14,13 +14,15 @@ output:
 ---
 
 ```{r setup, include = FALSE}
+
 library(tidyverse)
 library(knitr)
 opts_chunk$set(fig.width = 13, 
                message = FALSE, 
                warning = FALSE,
-               echo = FALSE,
-               cache = TRUE)
+               echo = FALSE)
+library(ggrepel)
+
 source(here::here("wilke-purl", "wilke-dir-vis.R"))
 source(here::here("wilke-purl", "wilke-aes-mapping.R"))
 source(here::here("wilke-purl", "wilke-avoid_line_drawings.R"))
@@ -30,8 +32,8 @@ source(here::here("wilke-purl", "wilke-color_basics.R"))
 
 update_geom_defaults('path', list(size = 3))
 update_geom_defaults('point', list(size = 4))
-
-dep_auto()
+update_geom_defaults('text_repel', list(size = 6))
+update_geom_defaults('text', list(size = 6))
 ```
 
 # #whoami
@@ -121,7 +123,7 @@ available through [amazon](https://www.amazon.com/ggplot2-Elegant-Graphics-Data-
 # Last note before we really start
 * These slides were produced with R
 
-* See the source code [here]()
+* See the source code [here](https://github.com/datalorax/psych-seminar19)
 
 * The focus of this particular talk is not on the code itself
 
@@ -191,9 +193,9 @@ How would you encode these data into a display?
 class: middle center
 # Putting it to practice
 
-```{r temp-change, fig.width = 14}
+```{r temp-change, fig.height = 8}
 ggplot(temps_long, aes(x = date, y = temperature, color = location)) +
-  geom_line(size = 1) +
+  geom_line(size = 1.5) +
   scale_x_date(name = "month", 
                limits = c(ymd("0000-01-01"), ymd("0001-01-04")),
                breaks = c(ymd("0000-01-01"), 
@@ -216,8 +218,7 @@ class: middle center
 # Alternative representation
 
 ```{r temp-change2, fig.width = 14}
-ggdraw(align_legend(p)) +
-  theme_void(base_size = 25)
+ggdraw(align_legend(p)) 
 ```
 
 ---
@@ -259,11 +260,6 @@ Additional scales can become lost without high structure in the data
 --
 1. Highlight
 
-
----
-class:inverse middle
-
-# Color as a tool to distinguish
 
 ---
 # Discrete items
@@ -362,9 +358,65 @@ ca %>%
 
 ```
 
+---
+# Common problems with color
+### Too many
+
+More than 5-ish categories generally becomes too difficult to track
+
+```{r too-many-colors}
+theme_set(theme_minimal(20))
+ggplot(popgrowth_df, aes(pop2000, popgrowth, color = state)) +
+  geom_point()
+```
 
 ---
-# Problem with default palette 
+# Use labels
+
+More than 5-ish categories generally becomes too difficult to track
+
+```{r states-labeled}
+library(ggrepel) #<<
+
+ggplot(popgrowth_df, aes(pop2000, popgrowth)) +
+  geom_point(color = "gray70") +
+  geom_text_repel(aes(label = state)) #<<
+```
+
+---
+# Better
+
+Get a subset
+
+```{r subset-states}
+to_label <- c("Alaska", "Arizona", "California", "Florida", "Wisconsin", 
+              "Louisiana", "Nevada", "Michigan", "Montana", "New Mexico", 
+              "Pennsylvania", "New York", "Oregon", "Rhode Island",
+              "Tennessee", "Texas", "Utah", "Vermont")
+subset_states <- popgrowth_df %>%
+  filter(state %in% to_label)
+
+ggplot(popgrowth_df, aes(pop2000, popgrowth)) +
+  geom_point(color = "gray70") +
+  geom_text_repel(aes(label = state), data = subset_states) 
+```
+
+---
+# Best
+
+```{r best-label}
+ggplot(popgrowth_df, aes(pop2000, popgrowth)) +
+  geom_point(color = "gray70") +
+  geom_point(color = "#DC5265", data = subset_states) +
+  geom_text_repel(aes(label = state), 
+                  data = subset_states,
+                  min.segment.length = 0,
+                  box.padding = 0.5,
+                  color = "gray40") 
+```
+
+---
+## Problem with default ggplot2 palette 
 
 ```{r colorblind1, echo = FALSE, fig.height = 8}
 p <- ggplot(popgrowth_df, 
@@ -380,14 +432,15 @@ colorblindr::cvd_grid(p)
 ---
 # Alternative: viridis
 
-```{r viridis1}
+```{r viridis1, fig.height = 8.25}
 ggplot(popgrowth_df, 
        aes(x = state, 
            y = 100*popgrowth)) + 
   geom_col(aes(fill = region),
            alpha = 0.7) + 
   scale_fill_viridis_d() + #<<
-  coord_flip() 
+  coord_flip() +
+  theme_minimal(12)
 ```
 
 ---
@@ -443,7 +496,7 @@ figure
 
 --
 
-* First thought -might be  Cool!
+* First thought might be... Cool!
 
 ---
 background-image:url(https://theamericanreligion.files.wordpress.com/2012/10/lee-corso-sucks.jpeg?w=660)
@@ -460,7 +513,7 @@ interpret.
 reduce cognitive load.
 
 ---
-# Another example
+# An example
 ### Which do you prefer?
 
 .pull-left[
@@ -479,7 +532,9 @@ h3_good
 ---
 # Advice from Wilke
 
-> Whenever possible, visualize your data with solid, colored shapes rather than with lines that outline those shapes. Solid shapes are more easily perceived, are less likely to create visual artifacts or optical illusions, and do more immediately convey amounts than do outlines.
+> Whenever possible, .bolder[visualize your data with solid, colored shapes] rather than with lines that outline those shapes. Solid shapes are more easily perceived, are less likely to create visual artifacts or optical illusions, and do more immediately convey amounts than do outlines.
+
+.gray[emphasis added]
 
 ---
 # Another example
@@ -502,74 +557,31 @@ class: center middle
 ```{r iris_filled}
 iris_filled
 ```
----
-# Common problems
-### Too many colors
-
-More than 5-ish categories generally becomes too difficult to track
-
-```{r too-many-colors, fig.height = 5}
-ggplot(popgrowth_df, aes(pop2000, popgrowth, color = state)) +
-  geom_point()
-```
 
 ---
-# Use labels
+# Labels in place of legends
 
-More than 5-ish categories generally becomes too difficult to track
-
-```{r states-labeled, fig.height = 5}
-library(ggrepel) #<<
-
-ggplot(popgrowth_df, aes(pop2000, popgrowth)) +
-  geom_point(color = "gray70") +
-  geom_text_repel(aes(label = state)) #<<
-```
-
----
-# Better
-
-Get a subset
-
-```{r subset-states}
-to_label <- c("Alaska", "Arizona", "California", "Florida", "Wisconsin", 
-              "Louisiana", "Nevada", "Michigan", "Montana", "New Mexico", 
-              "Pennsylvania", "New York", "Oregon", "Rhode Island",
-              "Tennessee", "Texas", "Utah", "Vermont")
-subset_states <- popgrowth_df %>%
-  filter(state %in% to_label)
-
-ggplot(popgrowth_df, aes(pop2000, popgrowth)) +
-  geom_point(color = "gray70") +
-  geom_text_repel(aes(label = state), data = subset_states) 
-```
-
----
-# Best
-
-```{r best-label}
-ggplot(popgrowth_df, aes(pop2000, popgrowth)) +
-  geom_point(color = "gray70") +
-  geom_point(color = "#DC5265", data = subset_states) +
-  geom_text_repel(aes(label = state), 
-                  data = subset_states,
-                  min.segment.length = 0,
-                  box.padding = 0.5,
-                  color = "#DC5265") 
-```
+Prior slide is a great example of when annotations can be used in place of a legend to 
+* reduce cognitive load
+* increase clarity
+* increase beauty
+* maximize the figure size
 
 ---
 class: inverse center middle
-# Practical Advice so far
+# Practical advice so far
+
+--
 ### Avoid line drawings
 
 --
-### Maximize the data-ink ratio within reason
+### Maximize the data-ink ratio within reason (but preference reduction of cognitive load)
 
 --
-### Use color to your advantage
-(and think critically about the palettes you choose)
+### Use color to your advantage (and think critically about the palettes you choose)
 
+--
+### Consider plot annotations over legends
 
 ---
 # Grouped data
@@ -637,7 +649,6 @@ ridgeline
 ```
 
 ```{r opts3, include = FALSE}
-knitr::opts_chunk$set(echo = TRUE)
 theme_set(theme_minimal(base_size = 25))
 ```
 
@@ -645,42 +656,55 @@ theme_set(theme_minimal(base_size = 25))
 class: inverse center middle
 # Quick empirical examples
 
+
+---
+# Titanic data
+
+```{r titanic-data}
+as_tibble(titanic)
+
+```
+
+
 ---
 # Boxplots
 
-```{r boxplots-empirical, fig.height = 6.5}
+```{r boxplots-empirical}
 ggplot(titanic, aes(sex, age)) +
-  geom_boxplot()
+  geom_boxplot(fill = 'cornflowerblue',
+               alpha = 0.7)
 ```
 
 ---
 # Violin plots
 
-```{r violin-empirical, fig.height = 6.5}
+```{r violin-empirical}
 ggplot(titanic, aes(sex, age)) +
-  geom_violin()
+  geom_violin(fill = 'cornflowerblue',
+               alpha = 0.7)
 ```
 
 ---
-# Jitterd point plots
+# Jittered point plots
 
-```{r jittered-empirical, fig.height = 6.5}
+```{r jittered-empirical}
 ggplot(titanic, aes(sex, age)) +
-  geom_jitter(width = 0.3)
+  geom_jitter(width = 0.3,
+              color = "cornflowerblue")
 ```
 
 ---
 # Sina plot
 
-```{r sina-empirical, fig.height = 6.5}
+```{r sina-empirical}
 ggplot(titanic, aes(sex, age)) +
-  ggforce::geom_sina()
+  ggforce::geom_sina(color = "cornflowerblue")
 ```
 
 ---
 # Stacked histogram
 
-```{r stacked-histo-empirical, message = FALSE, fig.height = 5}
+```{r stacked-histo-empirical, message = FALSE, fig.height = 6}
 ggplot(titanic, aes(age)) +
   geom_histogram(aes(fill = sex))
 ```
@@ -691,19 +715,16 @@ ggplot(titanic, aes(age)) +
 
 ---
 # Dodged
-```{r dodged-histo-empirical, message = FALSE, fig.height = 5}
+```{r dodged-histo-empirical, message = FALSE}
 ggplot(titanic, aes(age)) +
   geom_histogram(aes(fill = sex), 
                  position = "dodge")
 ```
 
-Note `position = "dodge"` does not go into `aes` (not accessing a variable in
-your dataset)
-
 ---
 # Better
 
-```{r wrapped-histo-empirical, message = FALSE, fig.height = 5.5}
+```{r wrapped-histo-empirical, message = FALSE}
 ggplot(titanic, aes(age)) +
   geom_histogram(fill = "#56B4E9",
                  color = "white",
@@ -714,7 +735,7 @@ ggplot(titanic, aes(age)) +
 ---
 # Overlapping densities
 
-```{r overlap-dens-empirical, fig.height = 5}
+```{r overlap-dens-empirical}
 ggplot(titanic, aes(age)) +
   geom_density(aes(fill = sex),
                color = "white",
@@ -737,7 +758,7 @@ ggplot(titanic, aes(age)) +
 ---
 # Ridgeline densities
 
-```{r ridgeline-dens-empirical, fig.height = 6}
+```{r ridgeline-dens-empirical}
 ggplot(titanic, aes(age, sex)) +
   ggridges::geom_density_ridges(color = "white",
                                 alpha = 0.4,
@@ -788,15 +809,13 @@ heatmap
 ---
 class: inverse center middle
 # A short journey
-
----
-# Empirical examples
 ### How much does college cost?
 
 ```{r opts4, include = FALSE}
-knitr::opts_chunk$set(echo = TRUE)
 theme_set(theme_minimal(base_size = 25))
 ```
+---
+# Tuition data
 
 ```{r load_tuition}
 library(here)
@@ -808,7 +827,7 @@ head(tuition)
 
 ---
 # By state: 2015-16
-```{r state-tuition1, fig.height = 5}
+```{r state-tuition1, fig.height = 6}
 ggplot(tuition, aes(State, `2015-16`)) +
   geom_col()
 ```
@@ -821,7 +840,7 @@ ggplot(tuition, aes(State, `2015-16`)) +
 # Two puke emoji version
 # 🤮🤮
 
-```{r state-tuition2, fig.height = 5}
+```{r state-tuition2, fig.height = 6}
 ggplot(tuition, aes(State, `2015-16`)) +
   geom_col() +
   theme(axis.text.x = element_text(angle = 45, hjust = 1, size = 10))
@@ -831,14 +850,7 @@ ggplot(tuition, aes(State, `2015-16`)) +
 # One puke emoji version
 # 🤮
 
-```{r state-tuition3-echo, fig.height = 5, eval = FALSE}
-ggplot(tuition, aes(State, `2015-16`)) +
-  geom_col() +
-  coord_flip()
-```
-
----
-```{r state-tuition3-eval, echo = FALSE, fig.height = 9.5}
+```{r state-tuition3-eval, fig.height = 8}
 ggplot(tuition, aes(State, `2015-16`)) +
   geom_col() +
   coord_flip() +
@@ -849,14 +861,7 @@ ggplot(tuition, aes(State, `2015-16`)) +
 # Kinda smiley version
 # 😏
 
-```{r state-tuition4-echo, eval = FALSE}
-ggplot(tuition, aes(fct_reorder(State, `2015-16`), `2015-16`)) +
-  geom_col() +
-  coord_flip() 
-```
-
----
-```{r state-tuition4-eval, echo = FALSE, fig.height = 9.5}
+```{r state-tuition4-eval, fig.height = 8}
 ggplot(tuition, aes(fct_reorder(State, `2015-16`), `2015-16`)) +
   geom_col() +
   coord_flip() +
@@ -867,17 +872,7 @@ ggplot(tuition, aes(fct_reorder(State, `2015-16`), `2015-16`)) +
 # Highlight Oregon
 # 🙂
 
-```{r oregon-highlight-echo, eval = FALSE}
-ggplot(tuition, aes(fct_reorder(State, `2015-16`), `2015-16`)) +
-  geom_col() +
-  geom_col(fill = "cornflowerblue", 
-           data = filter(tuition, State == "Oregon")) +
-  coord_flip() 
-```
-
----
-
-```{r oregon-highlight-eval, echo = FALSE, fig.height = 9.5}
+```{r oregon-highlight-eval, echo = FALSE, fig.height = 8}
 ggplot(tuition, aes(fct_reorder(State, `2015-16`), `2015-16`)) +
   geom_col() +
   geom_col(fill = "cornflowerblue", 
@@ -981,70 +976,11 @@ background-size:contain
 * Think about the data you have
 * Given that these are state-level data, they have a geographic component
 
---
-
-```{r geographic}
-#install.packages(c("maps"))
-state_data <- map_data("state") %>% # ggplot2::map_data
-  rename(State = region)
-head(state_data)
-```
-
----
-# Join it
-Obviously we'll talk more about joins later
-
-```{r join}
-tuition <- tuition %>% 
-  mutate(State = tolower(State))
-states <- left_join(state_data, tuition)
-head(states)
-```
-
----
-# Arrange
-
-```{r gather-states}
-states <- states %>% 
-  gather(year, tuition, `2004-05`:`2015-16`)
-head(states)
-```
-
----
-# Plot
-
-```{r usa-plot, fig.height = 5.5}
-ggplot(states) +
-  geom_polygon(aes(long, lat, group = group, fill = tuition)) +
-  coord_fixed(1.3) + #<<
-  scale_fill_viridis_c(option = "magma") +
-  facet_wrap(~year) 
-```
-
 ---
 background-image: url("img/states-heatmap.png")
 class: inverse bottom
 background-size:contain
 
-
----
-# Denisty plot
-
-.pull-left[
-###  😫
-```{r dens-titanic, fig.height = 6}
-ggplot(titanic, aes(age)) +
-  geom_density()
-```
-]
-
-.pull-right[
-### Change the fill
-```{r dens-titanic-blue, fig.height = 6}
-ggplot(titanic, aes(age)) +
-  geom_density(fill = "#56B4E9")
-```
-]
 
 
 ---
@@ -1056,16 +992,37 @@ class: inverse center middle
 ### As discussed earlier
 
 .pull-left[
-```{r iris_lines2, fig.width = 6}
+###  😫
+```{r dens-titanic, fig.width = 8}
+ggplot(titanic, aes(age)) +
+  geom_density()
+```
+]
+
+.pull-right[
+### Change the fill
+```{r dens-titanic-blue, fig.width = 8}
+ggplot(titanic, aes(age)) +
+  geom_density(fill = "#56B4E9")
+```
+]
+
+
+---
+class: middle 
+.pull-left[
+```{r iris_lines2, fig.width = 7}
 iris_lines
 ```
 ]
 
 .pull-right[
-```{r iris_filled2, fig.width = 6}
+```{r iris_filled2, fig.width = 7}
 iris_filled
 ```
 ]
+
+
 
 ---
 # Much worse
@@ -1129,14 +1086,14 @@ ggdraw(bt_bars_stacked)
 ```
 
 ---
-# My preference
+# Horizontal
 
 ```{r horiz_stacked}
 ggdraw(bt_bars_hstacked)
 ```
 
 ---
-# Or one of these
+# My preference
 
 ```{r dodged_bars, fig.height = 4}
 bt_bars
@@ -1161,12 +1118,8 @@ ggplot(bundestag, aes(x = fct_reorder(factor(party, levels = bundestag$party), s
 
 ![](img/dual_axes.png)
 
----
-# More examples
+.footnote[See many examples here: http://www.tylervigen.com/spurious-correlations]
 
-```{r spurious-corr}
-knitr::include_url("http://www.tylervigen.com/spurious-correlations")
-```
 
 ---
 # Truncated axes
@@ -1211,8 +1164,26 @@ class: middle center
 ![](img/poor_binning.png)
 
 ---
-class: inverse
-# Conclusions
+# Conclusions 
+
+### Practical takeaways to make better visualizations
+
+1. Avoid line drawings
+
+2. Sort bar charts in ascending/descending order as long as the other axis does not have implicit meaning
+
+3. Consider dropping legends and using annotations, when possible
+
+4. Use color to your advantage, but be sensitive to color-blindness, and use the right kind of palette
+
+5. Consider double-encoding data (shapes and color)
+
+6. Make your labels bigger! .gray[Didn't talk about this one much but it's super common and really important]
+
+
+
+---
+# Some things to avoid
 
 * Essentially never
 
@@ -1226,17 +1197,14 @@ class: inverse
 
   + Pie charts (usually (always?) use bars instead)
 
-* Do
 
-  + Minimize cognitive load
-
-  + Be as clear as possible
 
 ---
 class: inverse center middle
-# Practical Advice 
-1. Avoid line drawings
-2. Sort bar charts in ascending/descending order as long as the other axis does not have implicit meaning
-3. Use color to your advantage, but be sensitive to color-blindness
-4. Consider double-encoding data (shapes and color)
-5. Consider dropping legends and using annotations, when possible
+# Thanks!
+### Questions
+`r icon::fa("twitter")` [@datalorax_](https://twitter.com/datalorax_)
+`r icon::fa("github")` [@datalorax](https://github.com/datalorax)
+`r icon::fa("envelope")` [daniela@uoregon.edu](mailto:daniela@uoregon.edu)
+ 
+Slides available at 
