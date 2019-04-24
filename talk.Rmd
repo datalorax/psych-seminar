@@ -1010,6 +1010,7 @@ ggplot(titanic, aes(age)) +
 
 ---
 class: middle 
+
 .pull-left[
 ```{r iris_lines2, fig.width = 7}
 iris_lines
@@ -1207,4 +1208,4 @@ class: inverse center middle
 `r icon::fa("github")` [@datalorax](https://github.com/datalorax)
 `r icon::fa("envelope")` [daniela@uoregon.edu](mailto:daniela@uoregon.edu)
  
-Slides available at 
+Slides available at http://www.datalorax.com/talks/psych-seminar19/
