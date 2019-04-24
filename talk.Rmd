@@ -1,0 +1,1242 @@
+---
+title: "Some data viz advice"
+author: "Daniel Anderson "
+date: "Wednesday, April 24"
+output:
+  xaringan::moon_reader:
+    css: ["default", "uo", "uo-fonts", "hygge", "custom.css"]
+    lib_dir: libs
+    nature:
+      highlightStyle: atelier-dune-light
+      highlightLines: true
+      countIncrementalSlides: false
+      beforeInit: "https://platform.twitter.com/widgets.js"
+---
+
+```{r setup, include = FALSE}
+library(tidyverse)
+library(knitr)
+opts_chunk$set(fig.width = 13, 
+               message = FALSE, 
+               warning = FALSE,
+               echo = FALSE,
+               cache = TRUE)
+source(here::here("wilke-purl", "wilke-dir-vis.R"))
+source(here::here("wilke-purl", "wilke-aes-mapping.R"))
+source(here::here("wilke-purl", "wilke-avoid_line_drawings.R"))
+source(here::here("wilke-purl", "wilke-redundant_coding.R"))
+source(here::here("wilke-purl", "wilke-proportions.R"))
+source(here::here("wilke-purl", "wilke-color_basics.R"))
+
+update_geom_defaults('path', list(size = 3))
+update_geom_defaults('point', list(size = 4))
+
+dep_auto()
+```
+
+# #whoami
+
+.pull-left[
+* Research Assistant Professor: Behavioral Research and Teaching, University
+* Dad (two daughters: 7 and 4 (almost 5))
+* Primary areas of interest
+  + 💗💗R💗💗 and computational research 
+  + Open data, open science, and reproducible workflows
+  + Growth modeling, achievement gaps, and variance
+    between educational institutions (particularly spatially)
+]
+
+```{r fam-pic, out.width = "350px", echo = FALSE, fig.align = "center"}
+include_graphics("img/thefam.jpg")
+```
+
+---
+# Resources (free)
+
+.pull-left[
+Healy (http://socviz.co)
+
+<div>
+<img src = http://socviz.co/assets/dv-cover-pupress.jpg height = 400>
+</div>
+
+]
+
+.pull-right[
+Wilke (https://serialmentor.com/dataviz/)
+
+<div>
+<img src =
+http://t1.gstatic.com/images?q=tbn:ANd9GcSKmL1jCuh8rAxHEvGdd80_6GENytaUjiP7YEWGsiRFF_yta-18 height = 400> </div>
+
+
+]
+
+
+---
+# Other Resources
+* My classes! 
+* Sequence
+  + [Intro to R and reproducible/transparent research](https://github.com/uo-datasci-specialization/c1-intro_data_sci)
+  + [Communicating and Transforming Data](https://uo-datasci-specialization.github.io/c2-communicate_transform_data/)
+  + [Functional Programming in R](https://uo-datasci-specialization.github.io/c3-fun_program_r/)
+  + Applied Predictive Modeling
+  + Capstone
+
+---
+# Where to start?
+* I *really* recommend moving to R as quickly as possible
+
+--
+
+.pull-left[
+
+http://r4ds.had.co.nz
+
+<div>
+<img src = img/r4ds.png height = 350>
+</div>
+
+]
+
+.pull-right[
+http://www.moderndive.com
+![](img/moderndive.png)
+]
+
+---
+# ggplot2!
+
+.pull-left[
+https://r-graphics.org
+![](https://r-graphics.org/cover.jpg)
+]
+
+.pull-right[
+available through [amazon](https://www.amazon.com/ggplot2-Elegant-Graphics-Data-Analysis/dp/331924275X/ref=dp_ob_title_bk)
+![](https://images-na.ssl-images-amazon.com/images/I/31uoy-qmhEL._SX331_BO1,204,203,200_.jpg)
+]
+
+---
+# Last note before we really start
+* These slides were produced with R
+
+* See the source code [here]()
+
+* The focus of this particular talk is not on the code itself
+
+---
+class: middle center
+# Different ways of encoding data
+
+```{r data-encoding, fig.width = 14}
+plot_grid(aes_pos, aes_shape, aes_size,
+          aes_color, aes_lwd, aes_ltp,
+          ncol = 3,
+          labels = c("position", "shape", "size", "color", "line width", "line type"),
+          label_x = 0.05, label_y = 0.95, hjust = 0, vjust = 1, 
+          label_size = 40)
+```
+
+---
+# Other elements to consider
+* Text
+  
+  + How is the text displayed (e.g., font, face, location)? 
+  
+  + What is the purpose of the text?
+
+--
+
+* Transparency
+  
+  + Are there overlapping pieces? 
+  
+  + Can transparency help?
+
+--
+* Type of data
+  + Continuous/categorical
+  + Which can be mapped to each aesthetic?
+    - e.g., shape and line type can only be mapped to categorical data, whereas
+    color and size can be mapped to either.
+
+
+---
+class: middle center
+# Basic Scales
+
+```{r scales-wilke, fig.width = 14}
+scale_num + scale_shape + scale_color + plot_layout(ncol = 1)
+```
+
+---
+# Talk with a neighbor
+How would you encode these data into a display?
+
+| Month | Day | Location     | Temperature |
+|:-----:|:---:|:-------------| ------------|
+|  Jan  |  1  | Chicago      | 25.6        |
+|  Jan  |  1  | San Diego    | 55.2        |
+|  Jan  |  1  | Houston      | 53.9        |
+|  Jan  |  1  | Death Valley | 51.0        |
+|  Jan  |  2  | Chicago      | 25.5        |
+|  Jan  |  2  | San Diego    | 55.3        |
+|  Jan  |  2  | Houston      | 53.8        |
+|  Jan  |  2  | Death Valley | 51.2        |
+|  Jan  |  3  | Chicago      | 25.3        |
+
+
+---
+class: middle center
+# Putting it to practice
+
+```{r temp-change, fig.width = 14}
+ggplot(temps_long, aes(x = date, y = temperature, color = location)) +
+  geom_line(size = 1) +
+  scale_x_date(name = "month", 
+               limits = c(ymd("0000-01-01"), ymd("0001-01-04")),
+               breaks = c(ymd("0000-01-01"), 
+                          ymd("0000-04-01"), 
+                          ymd("0000-07-01"),
+                          ymd("0000-10-01"), 
+                          ymd("0001-01-01")),
+               labels = c("Jan", "Apr", "Jul", "Oct", "Jan"), 
+               expand = c(1/366, 0)) + 
+  scale_y_continuous(limits = c(15, 110),
+                     breaks = seq(20, 100, by = 20),
+                     name = "temperature (°F)") +
+  scale_color_OkabeIto(order = c(1:3, 7), name = NULL) +
+  theme_minimal(base_size = 25) +
+  theme(legend.title.align = 0.5)
+```
+
+---
+class: middle center
+# Alternative representation
+
+```{r temp-change2, fig.width = 14}
+ggdraw(align_legend(p)) +
+  theme_void(base_size = 25)
+```
+
+---
+# Comparison
+
+* Both represent three scales
+
+  + Two position scales (x/y axis)
+  + One color scale (categorical for the first, continuous for the second)
+
+--
+
+* More scales are possible
+
+```{r five-scales, fig.width = 8, fig.height = 4}
+ggdraw() + 
+  draw_plot(p_mtcars + theme(legend.position = "none")) + 
+  draw_grob(legend, x = .36, y = .7, width = .7, height = .2)
+```
+
+---
+background-image:url(http://socviz.co/dataviz-pdfl_files/figure-html4/ch-01-multichannel-1.png)
+background-size:contain
+
+Additional scales can become lost without high structure in the data
+
+---
+# Thinking more about color
+### Three fundamental uses 
+
+--
+1. Distinguish groups from each other
+
+
+--
+1. Represent data values
+
+
+--
+1. Highlight
+
+
+---
+class:inverse middle
+
+# Color as a tool to distinguish
+
+---
+# Discrete items
+* Often no intrinsic order
+
+
+--
+### Qualitative color scale
+* Finite number of colors
+  + Chosen to maximize distinctness, while also be equivalent
+  + Equivalent
+    - No  color should stand out
+    - No impression of order
+
+---
+background-image:url(https://serialmentor.com/dataviz/color_basics_files/figure-html/qualitative-scales-1.png)
+background-size:contain
+
+# Some examples
+
+.footnote[See more about the Okabe Ito palette origins here: http://jfly.iam.u-tokyo.ac.jp/color/]
+
+
+---
+background-image:url(https://serialmentor.com/dataviz/color_basics_files/figure-html/sequential-scales-1.png)
+background-size:contain
+
+# Sequential scale examples
+### Colors to represent continuous values
+
+
+
+---
+background-image:url(https://serialmentor.com/dataviz/color_basics_files/figure-html/diverging-scales-1.png)
+background-size:contain
+
+# Diverging palettes
+
+---
+# Earth palette
+
+```{r or1, echo = FALSE}
+library(tidycensus)
+library(tigris)
+options(tigris_use_cache = TRUE)
+options(tigris_class="sf")
+
+lane <- get_decennial(geography = "tract", variables = "P005003", 
+                  state = "OR", county = "Lane", geometry = TRUE,
+                  summary_var = "P001001")
+
+or <- get_decennial(geography = "county", variables = "P005003", 
+                  state = "OR", geometry = TRUE,
+                  summary_var = "P001001")
+
+ca <- get_decennial(geography = "county", variables = "P005003", 
+                  state = "CA", geometry = TRUE,
+                  summary_var = "P001001")
+
+
+or %>%
+  mutate(pct = 100 * (value / summary_value)) %>%
+  ggplot(aes(fill = pct, color = pct)) +
+  geom_sf() +
+  coord_sf(crs = 26915) + 
+  theme_dviz_map() +
+  scale_fill_continuous_divergingx(palette = "Earth", 
+                                   mid = 50, 
+                                   limits = c(0, 100)) +
+  scale_color_continuous_divergingx(palette = "Earth", 
+                                    mid = 50,
+                                    limits = c(0, 100)) +
+  labs(title = "Percentage of people identifying as White",
+       subtitle = "Oregon",
+       caption = "US Census Decennial Tract Data")
+
+```
+
+---
+```{r ca1, echo = FALSE, fig.height = 9}
+ca %>%
+  mutate(pct = 100 * (value / summary_value)) %>%
+  ggplot(aes(fill = pct, color = pct)) +
+  geom_sf() +
+  coord_sf(crs = 26915) + 
+  theme_dviz_map() +
+  scale_fill_continuous_divergingx(palette = "Earth", 
+                                   mid = 50, 
+                                   limits = c(0, 100)) +
+  scale_color_continuous_divergingx(palette = "Earth", 
+                                    mid = 50,
+                                    limits = c(0, 100)) +
+  labs(title = "Percentage of people identifying as White",
+       subtitle = "California",
+       caption = "US Census Decennial County Data")
+
+```
+
+
+---
+# Problem with default palette 
+
+```{r colorblind1, echo = FALSE, fig.height = 8}
+p <- ggplot(popgrowth_df, 
+       aes(x = state, 
+           y = 100*popgrowth)) + 
+  geom_col(aes(fill = region),
+           alpha = 0.7) + 
+  coord_flip() +
+  theme_void()
+colorblindr::cvd_grid(p)
+```
+
+---
+# Alternative: viridis
+
+```{r viridis1}
+ggplot(popgrowth_df, 
+       aes(x = state, 
+           y = 100*popgrowth)) + 
+  geom_col(aes(fill = region),
+           alpha = 0.7) + 
+  scale_fill_viridis_d() + #<<
+  coord_flip() 
+```
+
+---
+# Revised version
+
+```{r echo = FALSE, fig.height = 8}
+p2 <- ggplot(popgrowth_df, 
+       aes(x = state, 
+           y = 100*popgrowth)) + 
+  geom_col(aes(fill = region),
+           alpha = 0.7) + 
+  coord_flip() +
+  scale_fill_viridis_d() +
+  theme_void()
+
+colorblindr::cvd_grid(p2)
+```
+
+---
+# Last few note on palettes
+* Do some research, find what you like .bold[and] what tends to work well
+
+* Check for colorblindness
+
+* Look into http://colorbrewer2.org/ 
+
+---
+class: inverse center middle
+# Data ink ratio
+
+---
+# What is it?
+
+--
+> ### Above all else,  show the data
+
+<br>
+\-Edward Tufte
+
+
+--
+* Data-Ink Ratio = Ink devoted to the data / total ink used to produce the
+figure
+
+
+--
+* Common goal: Maximize the data-ink ratio
+
+---
+# Example
+
+![](img/six-boxplots.png)
+
+--
+
+* First thought -might be  Cool!
+
+---
+background-image:url(https://theamericanreligion.files.wordpress.com/2012/10/lee-corso-sucks.jpeg?w=660)
+background-size:cover
+
+---
+# Minimize cognitive load
+* Empirically, Tufte's plot was .bolder[the most difficult] for viewers to
+interpret.
+
+
+--
+* Visual cues (labels, gridlines) reduce the data-ink ratio, but can also 
+reduce cognitive load.
+
+---
+# Another example
+### Which do you prefer?
+
+.pull-left[
+```{r h3_bad, fig.width = 6}
+h3_bad
+```
+]
+
+.pull-right[
+```{r h3_good, fig.width = 6}
+h3_good
+```
+]
+
+
+---
+# Advice from Wilke
+
+> Whenever possible, visualize your data with solid, colored shapes rather than with lines that outline those shapes. Solid shapes are more easily perceived, are less likely to create visual artifacts or optical illusions, and do more immediately convey amounts than do outlines.
+
+---
+# Another example
+
+.pull-left[
+```{r iris_lines, fig.width = 6}
+iris_lines
+```
+]
+
+.pull-right[
+```{r iris_colored_lines, fig.width = 6}
+iris_colored_lines
+```
+]
+
+---
+class: center middle
+
+```{r iris_filled}
+iris_filled
+```
+---
+# Common problems
+### Too many colors
+
+More than 5-ish categories generally becomes too difficult to track
+
+```{r too-many-colors, fig.height = 5}
+ggplot(popgrowth_df, aes(pop2000, popgrowth, color = state)) +
+  geom_point()
+```
+
+---
+# Use labels
+
+More than 5-ish categories generally becomes too difficult to track
+
+```{r states-labeled, fig.height = 5}
+library(ggrepel) #<<
+
+ggplot(popgrowth_df, aes(pop2000, popgrowth)) +
+  geom_point(color = "gray70") +
+  geom_text_repel(aes(label = state)) #<<
+```
+
+---
+# Better
+
+Get a subset
+
+```{r subset-states}
+to_label <- c("Alaska", "Arizona", "California", "Florida", "Wisconsin", 
+              "Louisiana", "Nevada", "Michigan", "Montana", "New Mexico", 
+              "Pennsylvania", "New York", "Oregon", "Rhode Island",
+              "Tennessee", "Texas", "Utah", "Vermont")
+subset_states <- popgrowth_df %>%
+  filter(state %in% to_label)
+
+ggplot(popgrowth_df, aes(pop2000, popgrowth)) +
+  geom_point(color = "gray70") +
+  geom_text_repel(aes(label = state), data = subset_states) 
+```
+
+---
+# Best
+
+```{r best-label}
+ggplot(popgrowth_df, aes(pop2000, popgrowth)) +
+  geom_point(color = "gray70") +
+  geom_point(color = "#DC5265", data = subset_states) +
+  geom_text_repel(aes(label = state), 
+                  data = subset_states,
+                  min.segment.length = 0,
+                  box.padding = 0.5,
+                  color = "#DC5265") 
+```
+
+---
+class: inverse center middle
+# Practical Advice so far
+### Avoid line drawings
+
+--
+### Maximize the data-ink ratio within reason
+
+--
+### Use color to your advantage
+(and think critically about the palettes you choose)
+
+
+---
+# Grouped data
+### Distributions
+
+How do we display more than one distribution at a time?
+
+```{r theme-update-icon, include = FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+theme_update(axis.text.x = element_blank(),
+             axis.text.y = element_blank(),
+             axis.title.x = element_blank(),
+             axis.title.y = element_blank(),
+             legend.position = "none")
+```
+
+
+---
+# Boxplots
+
+```{r boxplots}
+boxplots
+```
+
+---
+# Violin plots
+
+```{r violin}
+violin
+```
+
+---
+# Jittered points
+
+```{r jittered}
+jittered
+```
+
+---
+# Sina plots
+
+```{r sina}
+sina
+```
+
+---
+# Stacked histograms
+
+```{r stacked-histo}
+stacked_histo
+```
+
+---
+# Overlapping densities
+
+```{r overlap-dens}
+overlap_dens
+```
+
+---
+# Ridgeline densities
+
+```{r ridgeline}
+ridgeline
+```
+
+```{r opts3, include = FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+theme_set(theme_minimal(base_size = 25))
+```
+
+---
+class: inverse center middle
+# Quick empirical examples
+
+---
+# Boxplots
+
+```{r boxplots-empirical, fig.height = 6.5}
+ggplot(titanic, aes(sex, age)) +
+  geom_boxplot()
+```
+
+---
+# Violin plots
+
+```{r violin-empirical, fig.height = 6.5}
+ggplot(titanic, aes(sex, age)) +
+  geom_violin()
+```
+
+---
+# Jitterd point plots
+
+```{r jittered-empirical, fig.height = 6.5}
+ggplot(titanic, aes(sex, age)) +
+  geom_jitter(width = 0.3)
+```
+
+---
+# Sina plot
+
+```{r sina-empirical, fig.height = 6.5}
+ggplot(titanic, aes(sex, age)) +
+  ggforce::geom_sina()
+```
+
+---
+# Stacked histogram
+
+```{r stacked-histo-empirical, message = FALSE, fig.height = 5}
+ggplot(titanic, aes(age)) +
+  geom_histogram(aes(fill = sex))
+```
+
+--
+
+# 🤨
+
+---
+# Dodged
+```{r dodged-histo-empirical, message = FALSE, fig.height = 5}
+ggplot(titanic, aes(age)) +
+  geom_histogram(aes(fill = sex), 
+                 position = "dodge")
+```
+
+Note `position = "dodge"` does not go into `aes` (not accessing a variable in
+your dataset)
+
+---
+# Better
+
+```{r wrapped-histo-empirical, message = FALSE, fig.height = 5.5}
+ggplot(titanic, aes(age)) +
+  geom_histogram(fill = "#56B4E9",
+                 color = "white",
+                 alpha = 0.7,) +
+  facet_wrap(~sex) #<<
+```
+
+---
+# Overlapping densities
+
+```{r overlap-dens-empirical, fig.height = 5}
+ggplot(titanic, aes(age)) +
+  geom_density(aes(fill = sex),
+               color = "white",
+               alpha = 0.4)
+```
+
+--
+Note the default colors really don't work well in most of these
+
+---
+
+```{r overlap-dens-empirical2}
+ggplot(titanic, aes(age)) +
+  geom_density(aes(fill = sex),
+               color = "white",
+               alpha = 0.4) +
+  scale_fill_manual(values = c("#003F9C", "#2372A3"))
+```
+
+---
+# Ridgeline densities
+
+```{r ridgeline-dens-empirical, fig.height = 6}
+ggplot(titanic, aes(age, sex)) +
+  ggridges::geom_density_ridges(color = "white",
+                                alpha = 0.4,
+                                fill = "#003F9C")
+```
+
+---
+class: inverse center middle
+# Visualizing amounts
+
+---
+# Bar plots
+
+```{r theme-update, include = FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+theme_update(axis.text.x = element_blank(),
+             axis.text.y = element_blank(),
+             axis.title.x = element_blank(),
+             axis.title.y = element_blank(),
+             legend.position = "none")
+```
+
+```{r bars}
+bars
+```
+
+---
+# Flipped bars
+
+```{r flipped_bars}
+flipped_bars
+```
+
+---
+# Dotplot
+
+```{r dots}
+dots
+```
+
+---
+# Heatmap
+
+```{r heatmap}
+heatmap
+```
+
+---
+class: inverse center middle
+# A short journey
+
+---
+# Empirical examples
+### How much does college cost?
+
+```{r opts4, include = FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+theme_set(theme_minimal(base_size = 25))
+```
+
+```{r load_tuition}
+library(here)
+library(rio)
+tuition <- import(here("data", "us_avg_tuition.xlsx"),
+                  setclass = "tbl_df")
+head(tuition)
+```
+
+---
+# By state: 2015-16
+```{r state-tuition1, fig.height = 5}
+ggplot(tuition, aes(State, `2015-16`)) +
+  geom_col()
+```
+
+--
+
+# 🤮🤮🤮
+
+---
+# Two puke emoji version
+# 🤮🤮
+
+```{r state-tuition2, fig.height = 5}
+ggplot(tuition, aes(State, `2015-16`)) +
+  geom_col() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1, size = 10))
+```
+
+---
+# One puke emoji version
+# 🤮
+
+```{r state-tuition3-echo, fig.height = 5, eval = FALSE}
+ggplot(tuition, aes(State, `2015-16`)) +
+  geom_col() +
+  coord_flip()
+```
+
+---
+```{r state-tuition3-eval, echo = FALSE, fig.height = 9.5}
+ggplot(tuition, aes(State, `2015-16`)) +
+  geom_col() +
+  coord_flip() +
+  theme(axis.text.y = element_text(size = 13))
+```
+
+---
+# Kinda smiley version
+# 😏
+
+```{r state-tuition4-echo, eval = FALSE}
+ggplot(tuition, aes(fct_reorder(State, `2015-16`), `2015-16`)) +
+  geom_col() +
+  coord_flip() 
+```
+
+---
+```{r state-tuition4-eval, echo = FALSE, fig.height = 9.5}
+ggplot(tuition, aes(fct_reorder(State, `2015-16`), `2015-16`)) +
+  geom_col() +
+  coord_flip() +
+  theme(axis.text.y = element_text(size = 13))
+```
+
+---
+# Highlight Oregon
+# 🙂
+
+```{r oregon-highlight-echo, eval = FALSE}
+ggplot(tuition, aes(fct_reorder(State, `2015-16`), `2015-16`)) +
+  geom_col() +
+  geom_col(fill = "cornflowerblue", 
+           data = filter(tuition, State == "Oregon")) +
+  coord_flip() 
+```
+
+---
+
+```{r oregon-highlight-eval, echo = FALSE, fig.height = 9.5}
+ggplot(tuition, aes(fct_reorder(State, `2015-16`), `2015-16`)) +
+  geom_col() +
+  geom_col(fill = "cornflowerblue", 
+           data = filter(tuition, State == "Oregon")) +
+  coord_flip() +
+  theme(axis.text.y = element_text(size = 13))
+```
+
+---
+# Not always good to sort
+
+```{r income_df-sorted, echo = FALSE}
+income_by_age %>% 
+filter(race == "all") %>%
+  ggplot(aes(x = fct_reorder(age, desc(median_income)), y = median_income)) +
+    geom_col() +
+    scale_y_continuous(
+      expand = c(0, 0),
+      name = "median income (USD)",
+      breaks = c(0, 20000, 40000, 60000),
+      labels = c("$0", "$20,000", "$40,000", "$60,000")
+    ) +
+    coord_cartesian(clip = "off") +
+    xlab("age (years)") 
+```
+
+---
+# Much better
+
+```{r income_df, echo = FALSE}
+income_by_age %>% 
+filter(race == "all") %>%
+  ggplot(aes(x = age, y = median_income)) +
+    geom_col() +
+    scale_y_continuous(
+      expand = c(0, 0),
+      name = "median income (USD)",
+      breaks = c(0, 20000, 40000, 60000),
+      labels = c("$0", "$20,000", "$40,000", "$60,000")
+    ) +
+    coord_cartesian(clip = "off") +
+    xlab("age (years)") 
+```
+
+---
+# Heatmap
+
+```{r heatmap2-echo, eval = FALSE}
+tuition_l <- tuition %>%
+  gather(year, avg_tuition, -State)
+ggplot(tuition_l, aes(year, State)) +
+  geom_tile(aes(fill = avg_tuition)) 
+```
+
+```{r heatmap2-eval, echo = FALSE}
+tuition_l <- tuition %>%
+  gather(year, avg_tuition, -State)
+ggplot(tuition_l, aes(year, State)) +
+  geom_tile(aes(fill = avg_tuition)) +
+  theme_minimal(base_size = 12)
+```
+
+---
+# Better heatmap
+
+```{r heatmap3-echo, eval = FALSE}
+ggplot(tuition_l, aes(year, fct_reorder(State, avg_tuition))) +
+  geom_tile(aes(fill = avg_tuition)) 
+```
+
+```{r heatmap3-eval, echo = FALSE}
+ggplot(tuition_l, aes(year, fct_reorder(State, avg_tuition))) +
+  geom_tile(aes(fill = avg_tuition)) +
+  theme_minimal(base_size = 12)
+```
+
+---
+# Even better heatmap
+
+```{r heatmap4-echo, eval = FALSE}
+ggplot(tuition_l, aes(year, fct_reorder(State, avg_tuition))) +
+  geom_tile(aes(fill = avg_tuition)) +
+  scale_fill_viridis_c(option = "magma")
+```
+
+```{r heatmap4-eval, echo = FALSE}
+ggplot(tuition_l, aes(year, fct_reorder(State, avg_tuition))) +
+  geom_tile(aes(fill = avg_tuition)) +
+  scale_fill_viridis_c(option = "magma") +
+  theme_minimal(base_size = 12)
+```
+
+---
+background-image: url("img/heatmap.png")
+class: inverse bottom
+background-size:contain
+
+
+---
+# Quick aside
+* Think about the data you have
+* Given that these are state-level data, they have a geographic component
+
+--
+
+```{r geographic}
+#install.packages(c("maps"))
+state_data <- map_data("state") %>% # ggplot2::map_data
+  rename(State = region)
+head(state_data)
+```
+
+---
+# Join it
+Obviously we'll talk more about joins later
+
+```{r join}
+tuition <- tuition %>% 
+  mutate(State = tolower(State))
+states <- left_join(state_data, tuition)
+head(states)
+```
+
+---
+# Arrange
+
+```{r gather-states}
+states <- states %>% 
+  gather(year, tuition, `2004-05`:`2015-16`)
+head(states)
+```
+
+---
+# Plot
+
+```{r usa-plot, fig.height = 5.5}
+ggplot(states) +
+  geom_polygon(aes(long, lat, group = group, fill = tuition)) +
+  coord_fixed(1.3) + #<<
+  scale_fill_viridis_c(option = "magma") +
+  facet_wrap(~year) 
+```
+
+---
+background-image: url("img/states-heatmap.png")
+class: inverse bottom
+background-size:contain
+
+
+---
+# Denisty plot
+
+.pull-left[
+###  😫
+```{r dens-titanic, fig.height = 6}
+ggplot(titanic, aes(age)) +
+  geom_density()
+```
+]
+
+.pull-right[
+### Change the fill
+```{r dens-titanic-blue, fig.height = 6}
+ggplot(titanic, aes(age)) +
+  geom_density(fill = "#56B4E9")
+```
+]
+
+
+---
+class: inverse center middle
+# Some things to avoid
+
+---
+# Line drawings
+### As discussed earlier
+
+.pull-left[
+```{r iris_lines2, fig.width = 6}
+iris_lines
+```
+]
+
+.pull-right[
+```{r iris_filled2, fig.width = 6}
+iris_filled
+```
+]
+
+---
+# Much worse
+### Unnecessary 3D
+
+.pull-left[
+![](img/3d-pie-10-v2.png)
+]
+
+.pull-right[
+![](img/3d-pie-20-v2.png)
+]
+
+---
+# Much worse
+### Unnecessary 3D
+
+.pull-left[
+![](img/3d-pie-40-v2.png)
+]
+
+.pull-right[
+![](img/3d-pie-80-v2.png)
+]
+
+
+---
+# Horrid example
+### Used relatively regularly
+![](img/3d_bar.png)
+
+
+---
+# Pie charts
+### Especially w/lots of categories
+
+![](https://serialmentor.com/dataviz/visualizing_proportions_files/figure-html/marketshare-pies-1.png)
+
+---
+# Alternative representation
+
+![](https://serialmentor.com/dataviz/visualizing_proportions_files/figure-html/marketshare-side-by-side-1.png)
+
+
+---
+# A case for pie charts
+* $n$ categories low,
+* differences are relatively large
+* familiar for some audiences 
+
+```{r pie, fig.height = 4, fig.width = 10}
+wilke_pie
+```
+
+---
+# The anatomy of a pie chart
+Pie charts are just stacked bar charts with a radial coordinate system
+
+```{r stacked_bars_nopie}
+ggdraw(bt_bars_stacked)
+```
+
+---
+# My preference
+
+```{r horiz_stacked}
+ggdraw(bt_bars_hstacked)
+```
+
+---
+# Or one of these
+
+```{r dodged_bars, fig.height = 4}
+bt_bars
+
+ggplot(bundestag, aes(x = fct_reorder(factor(party, levels = bundestag$party), seats), 
+                      y = seats, 
+                      fill = party)) + 
+  geom_col() + 
+  geom_text(aes(label = seats), size = 10, hjust = 1.2, color = c("white", "white", "black")) +
+  scale_x_discrete(name = NULL) +
+  scale_y_continuous(expand = c(0, 0)) +
+  scale_fill_manual(values = bundestag$colors[order(bundestag$party)], guide = "none") + 
+  theme_dviz_grid(25) +
+  theme(axis.ticks.x = element_blank()) +
+  coord_flip()
+```
+
+---
+# Dual axes
+* One exception - if second axis is a direct transformation of the first
+  + e.g., Miles/Kilometers, Fahrenheit/Celsius 
+
+![](img/dual_axes.png)
+
+---
+# More examples
+
+```{r spurious-corr}
+knitr::include_url("http://www.tylervigen.com/spurious-correlations")
+```
+
+---
+# Truncated axes
+![](img/truncated_axes.png)
+
+---
+class: middle
+![](img/truncated_axes2.png)
+
+
+---
+# Not always a bad thing
+> It is tempting to lay down inflexible rules about what to do in terms of producing your graphs, and to dismiss people who don’t follow them as producing junk charts or lying with statistics. But being honest with your data is a bigger problem than can be solved by rules of thumb about making graphs. In this case there is a moderate level of agreement that bar charts should generally include a zero baseline (or equivalent) given that bars encode their variables as lengths. But it would be a mistake to think that a dot plot was by the same token deliberately misleading, just because it kept itself to the range of the data instead.
+
+---
+class: middle
+.pull-left[
+![](http://socviz.co/dataviz-pdfl_files/figure-html4/ch-01-bar-simple-1.png)
+]
+
+.pull-right[
+![](http://socviz.co/dataviz-pdfl_files/figure-html4/ch-01-bar-simple-2.png)
+]
+
+---
+class: middle
+.pull-left[
+![](http://socviz.co/dataviz-pdfl_files/figure-html4/ch-01-law-enrollments-1.png)
+]
+
+.pull-right[
+![](http://socviz.co/dataviz-pdfl_files/figure-html4/ch-01-law-enrollments-2.png)
+]
+
+---
+# Scaling issues
+![](img/area_size.png)
+
+---
+class: middle center
+# Poor binning choices
+![](img/poor_binning.png)
+
+---
+class: inverse
+# Conclusions
+
+* Essentially never
+
+  + Use dual axes (produce separate plots instead)
+
+  + Use 3D unnecessarily
+
+* Be wary of
+
+  + Truncated axes
+
+  + Pie charts (usually (always?) use bars instead)
+
+* Do
+
+  + Minimize cognitive load
+
+  + Be as clear as possible
+
+---
+class: inverse center middle
+# Practical Advice 
+1. Avoid line drawings
+2. Sort bar charts in ascending/descending order as long as the other axis does not have implicit meaning
+3. Use color to your advantage, but be sensitive to color-blindness
+4. Consider double-encoding data (shapes and color)
+5. Consider dropping legends and using annotations, when possible
