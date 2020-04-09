@@ -1,8 +1,8 @@
 <!DOCTYPE html>
-<html>
+<html lang="" xml:lang="">
   <head>
     <title>Some data viz advice</title>
-    <meta charset="utf-8">
+    <meta charset="utf-8" />
     <meta name="author" content="Daniel Anderson" />
     <link href="libs/remark-css-0.0.1/default.css" rel="stylesheet" />
     <link href="libs/remark-css-0.0.1/uo.css" rel="stylesheet" />
@@ -17,7 +17,7 @@ class: center, middle, inverse, title-slide
 
 # Some data viz advice
 ### Daniel Anderson
-### Wednesday, April 24
+### Wednesday, April 8, 2020
 
 ---
 
@@ -28,7 +28,7 @@ class: center, middle, inverse, title-slide
 
 .pull-left[
 * Research Assistant Professor: Behavioral Research and Teaching, University
-* Dad (two daughters: 7 and 4 (almost 5))
+* Dad (two daughters: (nearly) 8 and 5 (almost 6))
 * Primary areas of interest
   + 💗💗R💗💗 and computational research 
   + Open data, open science, and reproducible workflows
@@ -36,7 +36,7 @@ class: center, middle, inverse, title-slide
     between educational institutions (particularly spatially)
 ]
 
-&lt;img src="img/thefam.jpg" width="350px" style="display: block; margin: auto;" /&gt;
+&lt;img src="img/thefam.png" width="350px" style="display: block; margin: auto;" /&gt;
 
 ---
 # Resources (free)
@@ -55,7 +55,7 @@ Wilke (https://serialmentor.com/dataviz/)
 
 &lt;div&gt;
 &lt;img src =
-http://t1.gstatic.com/images?q=tbn:ANd9GcSKmL1jCuh8rAxHEvGdd80_6GENytaUjiP7YEWGsiRFF_yta-18 height = 400&gt; &lt;/div&gt;
+https://external-content.duckduckgo.com/iu/?u=http%3A%2F%2Febook3000.com%2Fupimg%2Fallimg%2F190330%2F0153540.jpg&amp;f=1&amp;nofb=1 height = 400&gt; &lt;/div&gt;
 
 
 ]
@@ -65,10 +65,10 @@ http://t1.gstatic.com/images?q=tbn:ANd9GcSKmL1jCuh8rAxHEvGdd80_6GENytaUjiP7YEWGs
 # Other Resources
 * My classes! 
 * Sequence
-  + [Intro to R and reproducible/transparent research](https://github.com/uo-datasci-specialization/c1-intro_data_sci)
-  + [Communicating and Transforming Data](https://uo-datasci-specialization.github.io/c2-communicate_transform_data/)
-  + [Functional Programming in R](https://uo-datasci-specialization.github.io/c3-fun_program_r/)
-  + Applied Predictive Modeling
+  + EDLD 651: Introductory Educational Data Science (EDS)
+  + EDLD 652: Data Visualization for EDS
+  + EDLD 653: Functional Programming for EDS
+  + EDLD 654: Machine Learning for EDS
   + Capstone
 
 ---
@@ -101,7 +101,7 @@ https://r-graphics.org
 ]
 
 .pull-right[
-available through [amazon](https://www.amazon.com/ggplot2-Elegant-Graphics-Data-Analysis/dp/331924275X/ref=dp_ob_title_bk)
+Third edition [in progress](https://ggplot2-book.org)!
 ![](https://images-na.ssl-images-amazon.com/images/I/31uoy-qmhEL._SX331_BO1,204,203,200_.jpg)
 ]
 
@@ -186,9 +186,8 @@ class: middle center
   + Two position scales (x/y axis)
   + One color scale (categorical for the first, continuous for the second)
 
---
-
-* More scales are possible
+---
+# More scales are possible
 
 ![](talk_files/figure-html/five-scales-1.png)&lt;!-- --&gt;
 
@@ -270,7 +269,7 @@ More than 5-ish categories generally becomes too difficult to track
 ---
 # Use labels
 
-More than 5-ish categories generally becomes too difficult to track
+still too many...
 
 ![](talk_files/figure-html/states-labeled-1.png)&lt;!-- --&gt;
 
@@ -283,6 +282,7 @@ Get a subset
 
 ---
 # Best
+(but could still be improved)
 
 ![](talk_files/figure-html/best-label-1.png)&lt;!-- --&gt;
 
@@ -531,6 +531,7 @@ class: inverse center middle
 Note the default colors really don't work well in most of these
 
 ---
+class: center middle
 
 ![](talk_files/figure-html/overlap-dens-empirical2-1.png)&lt;!-- --&gt;
 
@@ -577,16 +578,16 @@ class: inverse center middle
 
 ```
 ## # A tibble: 6 x 13
-##   State `2004-05` `2005-06` `2006-07` `2007-08` `2008-09` `2009-10`
-##   &lt;chr&gt;     &lt;dbl&gt;     &lt;dbl&gt;     &lt;dbl&gt;     &lt;dbl&gt;     &lt;dbl&gt;     &lt;dbl&gt;
-## 1 Alab…  5682.838  5840.550  5753.496  6008.169  6475.092  7188.954
-## 2 Alas…  4328.281  4632.623  4918.501  5069.822  5075.482  5454.607
-## 3 Ariz…  5138.495  5415.516  5481.419  5681.638  6058.464  7263.204
-## 4 Arka…  5772.302  6082.379  6231.977  6414.900  6416.503  6627.092
-## 5 Cali…  5285.921  5527.881  5334.826  5672.472  5897.888  7258.771
-## 6 Colo…  4703.777  5406.967  5596.348  6227.002  6284.137  6948.473
-## # … with 6 more variables: `2010-11` &lt;dbl&gt;, `2011-12` &lt;dbl&gt;,
-## #   `2012-13` &lt;dbl&gt;, `2013-14` &lt;dbl&gt;, `2014-15` &lt;dbl&gt;, `2015-16` &lt;dbl&gt;
+##   State `2004-05` `2005-06` `2006-07` `2007-08` `2008-09` `2009-10` `2010-11`
+##   &lt;chr&gt;     &lt;dbl&gt;     &lt;dbl&gt;     &lt;dbl&gt;     &lt;dbl&gt;     &lt;dbl&gt;     &lt;dbl&gt;     &lt;dbl&gt;
+## 1 Alab…  5682.838  5840.550  5753.496  6008.169  6475.092  7188.954  8071.134
+## 2 Alas…  4328.281  4632.623  4918.501  5069.822  5075.482  5454.607  5759.153
+## 3 Ariz…  5138.495  5415.516  5481.419  5681.638  6058.464  7263.204  8839.605
+## 4 Arka…  5772.302  6082.379  6231.977  6414.900  6416.503  6627.092  6900.912
+## 5 Cali…  5285.921  5527.881  5334.826  5672.472  5897.888  7258.771  8193.739
+## 6 Colo…  4703.777  5406.967  5596.348  6227.002  6284.137  6948.473  7748.201
+## # … with 5 more variables: `2011-12` &lt;dbl&gt;, `2012-13` &lt;dbl&gt;, `2013-14` &lt;dbl&gt;,
+## #   `2014-15` &lt;dbl&gt;, `2015-16` &lt;dbl&gt;
 ```
 
 ---
@@ -599,27 +600,54 @@ class: inverse center middle
 
 ---
 # Two puke emoji version
+
+.pls[
 # 🤮🤮
+]
+
+
+.prb[
 
 ![](talk_files/figure-html/state-tuition2-1.png)&lt;!-- --&gt;
+]
 
 ---
 # One puke emoji version
+
+.pls[
 # 🤮
+]
+
+
+.prb[
 
 ![](talk_files/figure-html/state-tuition3-eval-1.png)&lt;!-- --&gt;
+]
 
 ---
 # Kinda smiley version
+
+.pls[
 # 😏
+]
+
+
+.prb[
 
 ![](talk_files/figure-html/state-tuition4-eval-1.png)&lt;!-- --&gt;
+]
 
 ---
 # Highlight Oregon
+
+.pls[
 # 🙂
+]
+
+.prb[
 
 ![](talk_files/figure-html/oregon-highlight-eval-1.png)&lt;!-- --&gt;
+]
 
 ---
 # Not always good to sort
@@ -853,7 +881,7 @@ class: middle center
 
   + Truncated axes
 
-  + Pie charts (usually (always?) use bars instead)
+  + Pie charts (particularly with lots of categories)
 
 
 
@@ -865,8 +893,9 @@ class: inverse center middle
 <i class="fab  fa-github "></i> [@datalorax](https://github.com/datalorax)
 <i class="fas  fa-envelope "></i> [daniela@uoregon.edu](mailto:daniela@uoregon.edu)
  
-Slides available at http://www.datalorax.com/talks/psych-seminar19/
+Slides available at http://www.datalorax.com/talks/psych-seminar/
     </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
 <script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
 <script src="https://platform.twitter.com/widgets.js"></script>
 <script>var slideshow = remark.create({
@@ -877,16 +906,74 @@ Slides available at http://www.datalorax.com/talks/psych-seminar19/
 if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
   window.dispatchEvent(new Event('resize'));
 });
-(function() {
-  var d = document, s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
   if (!r) return;
   s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
   d.head.appendChild(s);
-})();</script>
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();
+// adds .remark-code-has-line-highlighted class to <pre> parent elements
+// of code chunks containing highlighted lines with class .remark-code-line-highlighted
+(function(d) {
+  const hlines = d.querySelectorAll('.remark-code-line-highlighted');
+  const preParents = [];
+  const findPreParent = function(line, p = 0) {
+    if (p > 1) return null; // traverse up no further than grandparent
+    const el = line.parentElement;
+    return el.tagName === "PRE" ? el : findPreParent(el, ++p);
+  };
+
+  for (let line of hlines) {
+    let pre = findPreParent(line);
+    if (pre && !preParents.includes(pre)) preParents.push(pre);
+  }
+  preParents.forEach(p => p.classList.add("remark-code-has-line-highlighted"));
+})(document);</script>
 
 <script>
 (function() {
-  var i, text, code, codes = document.getElementsByTagName('code');
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();
+</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
   for (i = 0; i < codes.length;) {
     code = codes[i];
     if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
@@ -900,7 +987,8 @@ if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
     }
     i++;
   }
-})();
+};
+slideshow._releaseMath(document);
 </script>
 <!-- dynamically load mathjax for compatibility with self-contained -->
 <script>

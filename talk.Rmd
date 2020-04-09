@@ -1,7 +1,7 @@
 ---
 title: "Some data viz advice"
 author: "Daniel Anderson "
-date: "Wednesday, April 24"
+date: "Wednesday, April 8, 2020"
 output:
   xaringan::moon_reader:
     css: ["default", "uo", "uo-fonts", "hygge", "custom.css"]
@@ -40,7 +40,7 @@ update_geom_defaults('text', list(size = 6))
 
 .pull-left[
 * Research Assistant Professor: Behavioral Research and Teaching, University
-* Dad (two daughters: 7 and 4 (almost 5))
+* Dad (two daughters: (nearly) 8 and 5 (almost 6))
 * Primary areas of interest
   + 💗💗R💗💗 and computational research 
   + Open data, open science, and reproducible workflows
@@ -49,7 +49,7 @@ update_geom_defaults('text', list(size = 6))
 ]
 
 ```{r fam-pic, out.width = "350px", echo = FALSE, fig.align = "center"}
-include_graphics("img/thefam.jpg")
+include_graphics("img/thefam.png")
 ```
 
 ---
@@ -69,7 +69,7 @@ Wilke (https://serialmentor.com/dataviz/)
 
 <div>
 <img src =
-http://t1.gstatic.com/images?q=tbn:ANd9GcSKmL1jCuh8rAxHEvGdd80_6GENytaUjiP7YEWGsiRFF_yta-18 height = 400> </div>
+https://external-content.duckduckgo.com/iu/?u=http%3A%2F%2Febook3000.com%2Fupimg%2Fallimg%2F190330%2F0153540.jpg&f=1&nofb=1 height = 400> </div>
 
 
 ]
@@ -79,10 +79,10 @@ http://t1.gstatic.com/images?q=tbn:ANd9GcSKmL1jCuh8rAxHEvGdd80_6GENytaUjiP7YEWGs
 # Other Resources
 * My classes! 
 * Sequence
-  + [Intro to R and reproducible/transparent research](https://github.com/uo-datasci-specialization/c1-intro_data_sci)
-  + [Communicating and Transforming Data](https://uo-datasci-specialization.github.io/c2-communicate_transform_data/)
-  + [Functional Programming in R](https://uo-datasci-specialization.github.io/c3-fun_program_r/)
-  + Applied Predictive Modeling
+  + EDLD 651: Introductory Educational Data Science (EDS)
+  + EDLD 652: Data Visualization for EDS
+  + EDLD 653: Functional Programming for EDS
+  + EDLD 654: Machine Learning for EDS
   + Capstone
 
 ---
@@ -115,7 +115,7 @@ https://r-graphics.org
 ]
 
 .pull-right[
-available through [amazon](https://www.amazon.com/ggplot2-Elegant-Graphics-Data-Analysis/dp/331924275X/ref=dp_ob_title_bk)
+Third edition [in progress](https://ggplot2-book.org)!
 ![](https://images-na.ssl-images-amazon.com/images/I/31uoy-qmhEL._SX331_BO1,204,203,200_.jpg)
 ]
 
@@ -229,11 +229,10 @@ ggdraw(align_legend(p))
   + Two position scales (x/y axis)
   + One color scale (categorical for the first, continuous for the second)
 
---
+---
+# More scales are possible
 
-* More scales are possible
-
-```{r five-scales, fig.width = 8, fig.height = 4}
+```{r five-scales}
 ggdraw() + 
   draw_plot(p_mtcars + theme(legend.position = "none")) + 
   draw_grob(legend, x = .36, y = .7, width = .7, height = .2)
@@ -325,7 +324,8 @@ or %>%
   ggplot(aes(fill = pct, color = pct)) +
   geom_sf() +
   coord_sf(crs = 26915) + 
-  theme_dviz_map() +
+  theme_dviz_map(font_size = 25,
+                 font_family = "Roboto Light") +
   scale_fill_continuous_divergingx(palette = "Earth", 
                                    mid = 50, 
                                    limits = c(0, 100)) +
@@ -345,7 +345,8 @@ ca %>%
   ggplot(aes(fill = pct, color = pct)) +
   geom_sf() +
   coord_sf(crs = 26915) + 
-  theme_dviz_map() +
+  theme_dviz_map(font_size = 25,
+                 font_family = "Roboto Light") +
   scale_fill_continuous_divergingx(palette = "Earth", 
                                    mid = 50, 
                                    limits = c(0, 100)) +
@@ -373,7 +374,7 @@ ggplot(popgrowth_df, aes(pop2000, popgrowth, color = state)) +
 ---
 # Use labels
 
-More than 5-ish categories generally becomes too difficult to track
+still too many...
 
 ```{r states-labeled}
 library(ggrepel) #<<
@@ -403,6 +404,7 @@ ggplot(popgrowth_df, aes(pop2000, popgrowth)) +
 
 ---
 # Best
+(but could still be improved)
 
 ```{r best-label}
 ggplot(popgrowth_df, aes(pop2000, popgrowth)) +
@@ -438,7 +440,8 @@ ggplot(popgrowth_df,
            y = 100*popgrowth)) + 
   geom_col(aes(fill = region),
            alpha = 0.7) + 
-  scale_fill_viridis_d() + #<<
+  scale_y_continuous(expand = c(0, 0)) +
+  scale_fill_viridis_d() + 
   coord_flip() +
   theme_minimal(12)
 ```
@@ -518,13 +521,13 @@ reduce cognitive load.
 
 .pull-left[
 ```{r h3_bad, fig.width = 6}
-h3_bad
+h3_bad 
 ```
 ]
 
 .pull-right[
 ```{r h3_good, fig.width = 6}
-h3_good
+h3_good 
 ```
 ]
 
@@ -729,7 +732,9 @@ ggplot(titanic, aes(age)) +
   geom_histogram(fill = "#56B4E9",
                  color = "white",
                  alpha = 0.7,) +
-  facet_wrap(~sex) #<<
+  facet_wrap(~sex) +
+  scale_y_continuous(breaks = seq(0, 50, 15)) +
+  theme_dviz_hgrid(font_size = 25, font_family = "Roboto Light")
 ```
 
 ---
@@ -746,8 +751,9 @@ ggplot(titanic, aes(age)) +
 Note the default colors really don't work well in most of these
 
 ---
+class: center middle
 
-```{r overlap-dens-empirical2}
+```{r overlap-dens-empirical2, fig.height = 8}
 ggplot(titanic, aes(age)) +
   geom_density(aes(fill = sex),
                color = "white",
@@ -761,8 +767,8 @@ ggplot(titanic, aes(age)) +
 ```{r ridgeline-dens-empirical}
 ggplot(titanic, aes(age, sex)) +
   ggridges::geom_density_ridges(color = "white",
-                                alpha = 0.4,
-                                fill = "#003F9C")
+                                fill = "#003F9C") +
+  scale_y_discrete(expand = c(0, 0)) 
 ```
 
 ---
@@ -838,48 +844,76 @@ ggplot(tuition, aes(State, `2015-16`)) +
 
 ---
 # Two puke emoji version
-# 🤮🤮
 
-```{r state-tuition2, fig.height = 6}
+.pls[
+# 🤮🤮
+]
+
+
+.prb[
+
+```{r state-tuition2, fig.height = 9}
 ggplot(tuition, aes(State, `2015-16`)) +
   geom_col() +
   theme(axis.text.x = element_text(angle = 45, hjust = 1, size = 10))
 ```
+]
 
 ---
 # One puke emoji version
-# 🤮
 
-```{r state-tuition3-eval, fig.height = 8}
+.pls[
+# 🤮
+]
+
+
+.prb[
+
+```{r state-tuition3-eval, fig.height = 10}
 ggplot(tuition, aes(State, `2015-16`)) +
   geom_col() +
   coord_flip() +
   theme(axis.text.y = element_text(size = 13))
 ```
+]
 
 ---
 # Kinda smiley version
-# 😏
 
-```{r state-tuition4-eval, fig.height = 8}
+.pls[
+# 😏
+]
+
+
+.prb[
+
+```{r state-tuition4-eval, fig.height = 10}
 ggplot(tuition, aes(fct_reorder(State, `2015-16`), `2015-16`)) +
   geom_col() +
   coord_flip() +
   theme(axis.text.y = element_text(size = 13))
 ```
+]
 
 ---
 # Highlight Oregon
-# 🙂
 
-```{r oregon-highlight-eval, echo = FALSE, fig.height = 8}
+.pls[
+# 🙂
+]
+
+.prb[
+
+```{r oregon-highlight-eval, echo = FALSE, fig.height = 10}
 ggplot(tuition, aes(fct_reorder(State, `2015-16`), `2015-16`)) +
   geom_col() +
   geom_col(fill = "cornflowerblue", 
            data = filter(tuition, State == "Oregon")) +
   coord_flip() +
+  scale_y_continuous(expand = c(0, 0)) +
   theme(axis.text.y = element_text(size = 13))
 ```
+]
 
 ---
 # Not always good to sort
@@ -1012,13 +1046,13 @@ ggplot(titanic, aes(age)) +
 class: middle 
 
 .pull-left[
-```{r iris_lines2, fig.width = 7}
+```{r iris_lines2, fig.width = 8}
 iris_lines
 ```
 ]
 
 .pull-right[
-```{r iris_filled2, fig.width = 7}
+```{r iris_filled2, fig.width = 8}
 iris_filled
 ```
 ]
@@ -1107,7 +1141,7 @@ ggplot(bundestag, aes(x = fct_reorder(factor(party, levels = bundestag$party), s
   scale_x_discrete(name = NULL) +
   scale_y_continuous(expand = c(0, 0)) +
   scale_fill_manual(values = bundestag$colors[order(bundestag$party)], guide = "none") + 
-  theme_dviz_grid(25) +
+  theme_dviz_grid(25, font_family = "Roboto Light") +
   theme(axis.ticks.x = element_blank()) +
   coord_flip()
 ```
@@ -1196,7 +1230,7 @@ class: middle center
 
   + Truncated axes
 
-  + Pie charts (usually (always?) use bars instead)
+  + Pie charts (particularly with lots of categories)
 
 
 
@@ -1208,4 +1242,4 @@ class: inverse center middle
 `r icon::fa("github")` [@datalorax](https://github.com/datalorax)
 `r icon::fa("envelope")` [daniela@uoregon.edu](mailto:daniela@uoregon.edu)
  
-Slides available at http://www.datalorax.com/talks/psych-seminar19/
+Slides available at http://www.datalorax.com/talks/psych-seminar/

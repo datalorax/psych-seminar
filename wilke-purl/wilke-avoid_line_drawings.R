@@ -7,24 +7,28 @@ library(ggridges) # for geom_density_line
 
 ## ----titanic-ages-lines, fig.cap='(ref:titanic-ages-lines)'--------------
 titanic <- titanic_all
-age_hist_3 <- data.frame(age = (1:25)*3-1.5, 
+age_hist_3 <- data.frame(age = as.character((1:25)*3-1.5), 
                          count = hist(titanic$age, breaks=(0:25)*3 + .01, plot = FALSE)$counts)
 
-h3_bad <- ggplot(age_hist_3, aes(x = age, y = count)) + geom_col(width = 2., fill = "transparent",
-                                                             color = "black")  + 
-  scale_y_continuous(limits = c(0, 86), expand = c(0, 0), breaks = 25*(0:5)) +
+h3_bad <- ggplot(titanic, aes(x = age)) + 
+  geom_histogram(fill = "transparent", color = "black")  + 
+  scale_y_continuous(limits = c(0, 86), expand = c(0, 0), breaks = 15*(0:5)) +
   scale_x_continuous(limits = c(0, 75), expand = c(0, 0)) +
-  theme_dviz_open() +
+  theme_dviz_open(font_family = "Roboto Light", font_size = 25) +
   background_grid(major = "y", minor = "none") +
-  theme(plot.margin = margin(3, 7, 3, 0))
+  theme(plot.margin = margin(3, 7, 3, 1.5))
 
 stamp_bad(h3_bad)
 
 ## ----titanic-ages-filled, fig.cap='(ref:titanic-ages-filled)'------------
-h3_good <- ggplot(age_hist_3, aes(x = age, y = count)) + geom_col(width = 2.7, fill = "#56B4E9")  + 
-  scale_y_continuous(limits = c(0, 86), expand = c(0, 0), breaks = 25*(0:5)) +
+h3_good <- ggplot(titanic, aes(x = age)) + 
+  geom_histogram(fill = "#56B4E9", 
+                 color = colorspace::lighten("#56B4E9", .5),
+                 size = 1.2,
+                 alpha = 0.8)  + 
+  scale_y_continuous(limits = c(0, 86), expand = c(0, 0), breaks = 15*(0:5)) +
   scale_x_continuous(limits = c(0, 75), expand = c(0, 0)) +
-  theme_dviz_open() +
+  theme_dviz_open(font_family = "Roboto Light", font_size = 25) +
   background_grid(major = "y", minor = "none") +
   theme(plot.margin = margin(3, 7, 3, 0))
 
@@ -67,7 +71,8 @@ iris_lines <- ggplot(iris_dens, aes(x = Sepal.Length, y = density, linetype = Sp
   ) +
   scale_x_continuous(expand = c(0, 0), name = "sepal length") +
   scale_y_continuous(limits = c(0, 1.5), expand = c(0, 0)) +
-  theme_dviz_open() +
+  theme_dviz_open(font_family = "Roboto Light",
+                  font_size = 25) +
   theme(plot.margin = margin(14, 7, 3, 0))
 
 stamp_ugly(iris_lines)
@@ -94,7 +99,7 @@ iris_colored_lines <- ggplot(iris_dens, aes(x = Sepal.Length, y = density, color
   ) +
   scale_x_continuous(expand = c(0, 0), name = "sepal length") +
   scale_y_continuous(limits = c(0, 1.5), expand = c(0, 0)) +
-  theme_dviz_open() +
+  theme_dviz_open(font_family = "Roboto Light") +
   theme(plot.margin = margin(14, 7, 3, 0))
 
 stamp_ugly(iris_colored_lines)
@@ -107,7 +112,7 @@ iris_filled <- ggplot(iris_dens, aes(x = Sepal.Length, y = density, fill = Speci
     aes(
       label = paste0("Iris ", Species),
       hjust = hjust, vjust = vjust,
-      x = Sepal.Length + nudge_x, 
+      x = Sepal.Length + nudge_x + 0.1, 
       y = density + nudge_y
     ),
     family = dviz_font_family,
@@ -127,7 +132,7 @@ iris_filled <- ggplot(iris_dens, aes(x = Sepal.Length, y = density, fill = Speci
   ) +
   scale_x_continuous(expand = c(0, 0), name = "sepal length") +
   scale_y_continuous(limits = c(0, 1.5), expand = c(0, 0)) +
-  theme_dviz_open() +
+  theme_dviz_open(font_family = "Roboto Light") +
   theme(plot.margin = margin(14, 7, 3, 0),
         axis.text = element_text(size = 25),
         text = element_text(size = 25))
@@ -152,7 +157,7 @@ mpg_linespoints <- ggplot(mpg, aes(y=cty, x=displ, shape=drv)) +
     breaks=c("f", "r", "4"),
     labels=c("FWD", "RWD", "4WD")
   ) +
-  theme_dviz_open() +
+  theme_dviz_open(font_family = "Roboto Light") +
   theme(
     legend.position = c(.7, .8),
     plot.margin = margin(3, 7, 3, 0)
@@ -190,7 +195,7 @@ mpg_filledpoints <- ggplot(mpg, aes(y = cty, x = displ, color = drv, fill = drv,
     breaks = c("f", "r", "4"),
     labels = c("FWD", "RWD", "4WD")
   ) +
-  theme_dviz_open() +
+  theme_dviz_open(font_family = "Roboto Light") +
   theme(
     legend.position = c(.7, .8),
     plot.margin = margin(3, 7, 3, 0)
@@ -221,7 +226,7 @@ lincoln_weather %>%
 
 lincoln_box_empty <- ggplot(lincoln_df, aes(x = month_short, y = `Mean Temperature [F]`)) +
   geom_boxplot() + xlab("Month") +
-  theme_dviz_open() +
+  theme_dviz_open(font_family = "Roboto Light") +
   theme(plot.margin = margin(3, 7, 3, 0))
 
 lincoln_box_empty
@@ -229,7 +234,7 @@ lincoln_box_empty
 ## ----lincoln-weather-box-filled, fig.cap='(ref:lincoln-weather-box-filled)'----
 lincoln_box_filled <- ggplot(lincoln_df, aes(x = month_short, y = `Mean Temperature [F]`)) +
   geom_boxplot(fill = 'grey90') + xlab("Month") +
-  theme_dviz_open() +
+  theme_dviz_open(font_family = "Roboto Light") +
   theme(plot.margin = margin(3, 7, 3, 0))
 
 lincoln_box_filled
